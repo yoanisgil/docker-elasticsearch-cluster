@@ -19,6 +19,8 @@ On the first part we will power up and Swarm cluster comprising one master and t
  - Docker Machine >= 0.5.0 (verify with *docker-machine --version*)
  - Have a valid/active [Digital Ocean](https://www.digitalocean.com/) account. If you don't you can get one [here](https://www.digitalocean.com/?refcode=b868d5213417).
 
+The "source code" of this article is available [on GitHub](https://github.com/yoanisgil/docker-elasticsearch-cluster). PRs are welcomed ;)
+
 ## The Swarm Cluster
 
 Before we can do anything else we need a few machines for our cluster, which we can be done in no time with Docker Machine. One thing I really love about Machine it's the number of Cloud providers [it supports](https://docs.docker.com/machine/drivers/) and how easy it is to launch a fully working Docker environment from the command line and have it running in a matter of minutes.  
@@ -63,15 +65,15 @@ which should produce an output like this:
         Date: Tue, 19 Jan 2016 04:48:34 GMT
         Content-Type: text/plain; charset=utf-8
 
-With the Key Value store in place let's launch the Swarm master:
+With the Key Value store in place lets launch the Swarm master:
 
     docker-machine create -d digitalocean --swarm  --swarm-master --swarm-discovery="consul://${KV_IP}:8500" --engine-opt="cluster-store=consul://${KV_IP}:8500"  --engine-opt="cluster-advertise=eth1:2376"  swarm-master
 
-and now let's summon those minions (just three of them):
+and now lets summon those minions:
 
     export NUM_WORKERS=3;
     for i in $(seq 1 $NUM_WORKERS); do 
-    docker-machine create -d digitalocean --digitalocean-size=1gb --swarm --swarm-discovery="consul://${KV_IP}:8500" --engine-opt="cluster-store=consul://${KV_IP}:8500" --engine-opt="cluster-advertise=eth1:2376" swarm-node-${i} 
+    docker-machine create -d digitalocean --digitalocean-size=1gb --swarm --swarm-discovery="consul://${KV_IP}:8500" --engine-opt="cluster-store=consul://${KV_IP}:8500" --engine-opt="cluster-advertise=eth1:2376" swarm-node-${i} &
     done;
 
 This operation should take about 15 - 20 mins, so go get a cup of coffee ;). I wanted this to be run in sequence so that you can  easily keep track of what's happening. 
@@ -79,11 +81,11 @@ This operation should take about 15 - 20 mins, so go get a cup of coffee ;). I w
 I know there is quite a bit to digest here, but if you find it overwhelming please do take the time to read [Nathan's post](http://nathanleclaire.com/blog/2015/11/17/seamless-docker-multihost-overlay-networking-on-digitalocean-with-machine-swarm-and-compose-ft.-rethinkdb/) and I'm sure by the time you're done everything in this article will make perfect sense.
 
 
-## The Elastic Search Cluster
+## The Elasticsearch Cluster
 
 With our infrastructure cluster in place we can now focus on the fun stuff: creating an Elasticsearch cluster. But before that, let's take a very quick look at Elasticsearch (ES from now on). ES is a high-availability/multi-tenant full-text search sever based on [Lucene](https://lucene.apache.org/core/). Yes, I know that was a mouthful to say but take a couple of minutes at the [ES home page](https://www.elastic.co/products/elasticsearch) and you'll get a better idea of what this remarkable piece of software can do for you.  
 
-It might seems a bit late, but there is one question I'd like to address before moving on. Why an ES Cluster? Aren't there a few cloud solutions already available at affordable prices? Yes there are some, like [Amazon Elastic Search ](https://aws.amazon.com/elasticsearch-service/) and [QBox](https://qbox.io/). but you still need at least $50 if you want a decent setup. Yes, it is true that Amazon Elastic Search is cloud based and that you pay only for what you use but it takes some time to get use to Amazon's terms and concepts (and the interface, and the lots of clicks ;))
+It might seem a bit late, but there is one question I'd like to address before moving on. Why an ES Cluster? Aren't there a few cloud solutions already available at affordable prices? Yes there are some, like [Amazon Elastic Search ](https://aws.amazon.com/elasticsearch-service/) and [QBox](https://qbox.io/). but you still need at least $50 if you want a decent setup. Yes, it is true that Amazon Elastic Search is cloud based and that you pay only for what you use but it takes some time to get use to Amazon's terms and concepts (and the interface, and the lots of clicks ;))
 
 There is also another reason why I think being able to run an ES cluster of your own can save you some time and money. A few months ago I was tasked to evaluate a suitable [API Gateway](http://microservices.io/patterns/apigateway.html) to be put in front of our HTTP API(s). After a few weeks testing solutions from major providers it was clear to me that [Kong](https://getkong.org/) would suit our needs to a large degree. I won't go into the details as to why Kong is such a good solution but if you're in the business of API(s) and Micro Services do take a look at it. So, once it was clear that Kong was the way to go, I needed to be sure that we wouldn't incur into any performance penalties once we started routing API calls through the Kong API Gateway. To make the story short, I ended up creating a small Python script to be able to replay API calls from logs files and [this](https://github.com/yoanisgil/locust-grafana).
 
