@@ -1,7 +1,7 @@
-#Running an Elasticsearch cluster on Docker 1.9 with  Swarm and Compose
+# Running an Elasticsearch cluster on Docker 1.9 with  Swarm and Compose
 
 
-##Intro
+## Intro
 
 I recently  came across [this excellent article](http://nathanleclaire.com/blog/2015/11/17/seamless-docker-multihost-overlay-networking-on-digitalocean-with-machine-swarm-and-compose-ft.-rethinkdb/) by  Nathan LeClaire which goes about spinning up  a [RethinkDB cluster](https://www.rethinkdb.com/) on the cloud, powered by Docker 1.9 and Swarm 1.0. It illustrates how using tools like  [Docker Compose](https://docs.docker.com/compose/) and [Docker Machine](https://www.google.ca/webhp?sourceid=chrome-instant&ion=1&espv=2&ie=UTF-8#q=docker%20machine) one can launch a cluster in just a few minutes. This is all possible thanks to one of Docker's coolest feat ever: Multi-Host Networking. 
 
@@ -214,7 +214,7 @@ And, hey!, do not forget to turn those servers off because you know, you're bill
 
     $ docker-machine rm kvstore swarm-master swarm-node-1 swarm-node-2 swarm-node-3
 
-#Finito
+# Finito
 
  By now it should be clear to you how easy it is to run a Elasticsearch cluster on a cloud provider of your own. Moreover you have full control of how and when this is done. I'm not saying that by  following the instructions provided here you will end up with a production grade cluster. This is far from it. However, for short lived task, like real time data analysis for making short term decisions  I believe this presents some very interesting and unique options (and challenges as well).
 
